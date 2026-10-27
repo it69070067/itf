@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOODPICKER ITF - Week17</title>
+    <!-- นำเข้าฟอนต์ Prompt จาก Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* แถบด้านบน (Header Bar) */
+        .top-bar {
+            width: 100%;
+            background-color: #f06400;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 30px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .top-bar .title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* คอนเทนเนอร์หลักตรงกลาง */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* การ์ดอาหาร */
+        .food-card {
+            background-color: #f8f8f8;
+            border-radius: 16px;
+            padding: 24px 28px;
+            width: 380px;
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        /* กรอบแสดงรูปภาพ */
+        .image-container {
+            width: 240px;
+            height: 160px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+        }
+
+        .food-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            transition: opacity 0.15s ease, filter 0.15s ease;
+        }
+
+        .food-image.animating {
+            opacity: 0.7;
+            filter: blur(2px);
+        }
+
+        /* รายละเอียดอาหาร */
+        .food-title {
+            color: #f15b50;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .food-description {
+            color: #8c8c8c;
+            font-size: 13px;
+            font-weight: 400;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        /* ป้ายราคาแบบ Pill */
+        .price-badge {
+            background-color: #fdeae8;
+            color: #ee5b52;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 18px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* ปุ่มสุ่มอาหาร */
+        .random-btn {
+            margin-top: 18px;
+            width: 380px;
+            max-width: 90vw;
+            background-color: #f15b50;
+            color: #ffffff;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 8px rgba(241, 91, 80, 0.2);
+        }
+
+        .random-btn:hover {
+            background-color: #e04b40;
+        }
+
+        .random-btn:active {
+            transform: scale(0.98);
+        }
+
+        .random-btn:disabled {
+            background-color: #fda49e;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header ด้านบน -->
+    <header class="top-bar">
+        <div>69070067</div>
+        <div class="title">สุ่มอาหาร</div>
+        <div>WASD</div>
+    </header>
+
+    <!-- คอนเทนต์หลัก -->
+    <main class="main-container">
+        <!-- การ์ดแสดงผลอาหาร -->
+        <div class="food-card">
+            <div class="image-container">
+                <img id="foodImg" class="food-image" src="" alt="รูปเมนูอาหาร" onerror="handleImageError(this)">
+            </div>
+            <div id="foodName" class="food-title">กำลังโหลด...</div>
+            <div id="foodDesc" class="food-description">-</div>
+            <div class="price-badge">
+                <span id="foodPrice">ราคา - บาท</span>
+            </div>
+        </div>
+
+        <!-- ปุ่มสุ่มเมนู -->
+        <button id="btnRandom" class="random-btn" onclick="randomFood()">สุ่มเมนูอาหาร</button>
+    </main>
+
+    <script>
+        const foodsList = [
+            {
+                name: "ข้าวมันไก่",
+                description: "น้ำจิ้มเด็ด น้ำซุปร้อนๆ หอมนุ่ม",
+                price: "50-65",
+                image: "https://tse3.mm.bing.net/th/id/OIP.LWR1ZT1AyckSZCT2QL07iAHaFj?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+            },
+            {
+                name: "ผัดไทยกุ้งสด",
+                description: "เส้นจันท์เหนียวนุ่ม ผัดซอสเข้มข้น กุ้งตัวโต",
+                price: "60-80",
+                image: "https://tse3.mm.bing.net/th/id/OIP.dxNUltnXgbNEmsW2Q4bPPwHaE8?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+            },
+            {
+                name: "ต้มยำกุ้งน้ำข้น",
+                description: "รสจัดจ้าน หอมกลิ่นสมุนไพรและกะทิสด",
+                price: "80-120",
+                image: "https://eatfoodpungpond.home.blog/wp-content/uploads/2019/01/cok2-3.jpg"
+            },
+            {
+                name: "กะเพราหมูกรอบ",
+                description: "หมูกรอบแท้ผัดใบกะเพราแท้ รสชาติเผ็ดร้อน",
+                price: "55-70",
+                image: "https://img.wongnai.com/p/1920x0/2025/11/09/4d5a91e53b7c414ab5521659c3235b37.jpg"
+            },
+            {
+                name: "ส้มตำไทย",
+                description: "เส้นมะละกอกรอบ รสแซ่บครบรส เปรี้ยวหวานเผ็ด",
+                price: "40-55",
+                image: "https://tse2.mm.bing.net/th/id/OIP.N6cnB-Ym4NYDUxxuGsnFmAHaE8?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+            }
+        ];
+
+        // รูปสำรองกรณีการเชื่อมต่ออินเทอร์เน็ตมีปัญหา (Placeholder SVG)
+        const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'><rect width='240' height='160' fill='%23f1f1f1'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Prompt, sans-serif' font-size='14' fill='%23a0a0a0'>🍱 รูปภาพอาหาร</text></svg>";
+
+        let currentIndex = 0;
+
+        function handleImageError(img) {
+            img.onerror = null;
+            img.src = fallbackImage;
+        }
+
+        function updateDisplay(item) {
+            const imgEl = document.getElementById('foodImg');
+            imgEl.src = item.image;
+            document.getElementById('foodName').innerText = item.name;
+            document.getElementById('foodDesc').innerText = item.description;
+            document.getElementById('foodPrice').innerText = `ราคา ${item.price} บาท`;
+        }
+
+        function randomFood() {
+            const btn = document.getElementById('btnRandom');
+            const imgEl = document.getElementById('foodImg');
+            
+            btn.disabled = true;
+            
+            let counter = 0;
+            const maxCycles = 10;
+            const intervalTime = 100;
+
+            imgEl.classList.add('animating');
+
+            const timer = setInterval(() => {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * foodsList.length);
+                } while (foodsList.length > 1 && randomIndex === currentIndex);
+
+                currentIndex = randomIndex;
+                updateDisplay(foodsList[currentIndex]);
+
+                counter++;
+                if (counter >= maxCycles) {
+                    clearInterval(timer);
+                    imgEl.classList.remove('animating');
+                    btn.disabled = false;
+                }
+            }, intervalTime);
+        }
+
+        window.onload = function() {
+            updateDisplay(foodsList[0]);
+        };
+    </script>
+</body>
+</html>
